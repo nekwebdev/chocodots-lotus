@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+# https://github.com/nekwebdev/chocodots-template
+# @nekwebdev
+# LICENSE: GPLv3
+
+# load user envirnoment variables
+ENVIRONMENTD="$HOME/.config/environment.d"
+set -a
+if [ -d "$ENVIRONMENTD" ]; then
+  for conf in "$ENVIRONMENTD"/*.conf
+  do
+    . "$conf"
+  done
+fi
+set +a
+
+# set keyboard repeat key speed when help
+xset r rate 210 40
+
+# set caps lock as another escape key
+setxkbmap -option caps:escape
+# remaps &		# or run a remaps script, switching caps/esc and more
+
+[[ -f ~/.bashrc ]] && . ~/.bashrc
+
+# start graphical server on user's current tty if tty1 and xorg not already running.
