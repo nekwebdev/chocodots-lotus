@@ -21,6 +21,10 @@ xset r rate 210 40
 setxkbmap -option caps:escape
 # remaps &		# or run a remaps script, switching caps/esc and more
 
+# load .bashrc
 [[ -f ~/.bashrc ]] && . ~/.bashrc
+
+# load keychain for ssh agent
+eval `keychain --agents ssh --eval id_ed25519`
 
 # start graphical server on user's current tty if tty1 and xorg not already running.
