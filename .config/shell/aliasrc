@@ -22,5 +22,10 @@ alias dots=dotbare
 alias cocoa='$XDG_CONFIG_HOME/cocoa/cocoa.sh'
 
 # colorize basic commands
-alias ls='ls --color=auto'
 alias grep='grep --color=auto'
+
+# exa aliases
+alias ls='exa -a --icons --color=always --group-directories-first'
+alias la='exa -lag --icons --color=always --group-directories-first --octal-permissions --no-time --no-filesize'
+alias ll='exa -lagh --icons --color=always --group-directories-first --octal-permissions'
+alias lg='exa -la --icons --color=always --group-directories-first --octal-permissions --no-time --no-filesize --no-permissions --no-user --git'

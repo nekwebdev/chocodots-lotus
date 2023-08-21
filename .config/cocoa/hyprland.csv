@@ -1,13 +1,13 @@
-# https://github.com/nekwebdev/chocodots-lotus-home
-# @nekwebdev
-# LICENSE: GPLv3
-#
-# ~/.config/cocoa/hyprland.csv
-#
-# list of all applications and libraries to install for hyprland.
-#
-#TAG (A for AUR - G for git and make - P for pip - C for clone only - empty for pacman),NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing) Leave empty line at end.
-# must haves
+#https://github.com/nekwebdev/chocodots-lotus-home
+#@nekwebdev
+#,LICENSE: GPLv3
+#,
+#,~/.config/cocoa/hyprland.csv
+#,
+#,list of all applications and libraries to install for hyprland.
+#,
+#,TAG (A for AUR - G for git and make - P for pip - C for clone only - empty for pacman),NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing) Leave empty line at end.
+#,must haves
 ,kitty,"is a modern, hackable, featureful, OpenGL-based terminal emulator."
 ,mako,"is a lightweight notification daemon for Wayland."
 ,pipewire,"is a low-latency audio/video router and processor."
@@ -15,23 +15,22 @@
 ,polkit-kde-agent,"is a daemon providing a polkit authentication UI for KDE"
 ,qt5-wayland,"provides APIs for Wayland."
 ,qt6-wayland,"provides APIs for Wayland."
-# required for pipewire to watch and connect new streams
+#,required for pipewire to watch and connect new streams
 ,wireplumber,"session / policy manager implementation for PipeWire."
-# qt5/6 extras
+#,qt5/6 extras
 ,qt5ct,"is a Qt5 configuration utility."
 ,qt6ct,"is a Qt6 configuration utility".
 ,qt5-svg,"are classes for displaying the contents of SVG files."
 ,qt5-quickcontrols2,"is a next generation user interface controls based on Qt Quick."
 ,qt5-graphicaleffects,"are graphical effects for use with Qt Quick 2."
-# wayland extras
+#,wayland extras
 ,wl-clipboard,"are command-line copy/paste utilities for Wayland."
 ,cliphist,"is a wayland clipboard manager."
-# gtk3
+#,gtk3
 ,gtk3,"is the GIMP toolkit, a GObject-based multi-platform GUI toolkit."
 ,xdg-user-dirs-gtk,"creates user dirs and asks to relocalize them. Also creates GTK bookmarks."
-# hyprland
+#,hyprland
 A,hyprland-nvidia,"is a dynamic tiling Wayland compositor based on wlroots that doesn't sacrifice on its looks (NVIDIA patch)."
-# nvidia specific
+#,nvidia specific
 ,libva,"is a video Acceleration (VA) API for Linux."
 A,libva-nvidia-driver-git,"is a VA-API implementation that uses NVDEC as a backend (git version)."
-

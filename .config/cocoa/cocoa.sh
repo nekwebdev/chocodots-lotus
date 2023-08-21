@@ -9,6 +9,9 @@
 #
 set -e
 
+CHOCO_AUR="yay"
+command -v /usr/bin/paru >/dev/null 2>/dev/null && CHOCO_AUR="paru"
+
 ###### => echo helpers #########################################################
 # _echo_step() outputs a step collored in cyan (6), without outputing a newline.
 function _echo_step() { tput setaf 6;echo -n "$1";tput sgr 0 0; }
@@ -22,10 +25,10 @@ function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
 function _echo_failure() { tput setaf 1;_echo_right "[ FAILED ]";tput sgr 0 0; }
 
 ###### => install helpers ######################################################
-function installpkg() { sudo pacman --noconfirm --needed -S "$#" >/dev/null 2>&1; }
+function installpkg() { sudo pacman --noconfirm --needed -S "$@" >/dev/null 2>&1; }
 
 function aurInstall() {
-	_echo_step "  (Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2)"
+	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2"
 	echo "$AUR_CHECK" | grep -q "^$1$" && _echo_success && return 0
 	"$CHOCO_AUR" -S --noconfirm "$1" >/dev/null 2>&1 || { _echo_failure && return 0; }
   _echo_success
@@ -35,7 +38,7 @@ function gitMakeInstall() {
   local progname
 	progname="$(basename "$1" .git)"
 	local dir="$HOME/.local/src/$progname"
-	_echo_step "  (Installing \`$progname\` ($((n-1)) of $TOTAL_PKG) via \`git\` and \`make\`. $(basename "$1") $2)"
+	_echo_step "  Installing \`$progname\` ($((n-1)) of $TOTAL_PKG) via \`git\` and \`make\`. $(basename "$1") $2"
 	git clone --depth 1 "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 0 ; git pull --force origin master >/dev/null 2>&1; } || { _echo_failure && return 0; }
 	cd "$dir" || exit 1
 	make >/dev/null 2>&1 || { _echo_failure && cd /tmp && return 0; }
@@ -47,26 +50,25 @@ function gitClone() {
 	local progname
 	progname="$(basename "$1" .git)"
 	local dir="$HOME/.local/src/$progname"
-	_echo_step "  (Cloning \`$progname\` ($((n-1)) of $TOTAL_PKG) via \`git\`. $(basename "$1") $2)"
+	_echo_step "  Cloning \`$progname\` ($((n-1)) of $TOTAL_PKG) via \`git\`. $(basename "$1") $2"
 	git clone "$1" "$dir" >/dev/null 2>&1 || { cd "$dir" || return 0 ; git pull --force origin master >/dev/null 2>&1; } || { _echo_failure && return 0; }
   _echo_success
 }
 
 function pipInstall() { \
-	_echo_step "  (Installing the Python package \`$1\` ($((n-1)) of $TOTAL_PKG). $1 $2)"
+	_echo_step "  Installing the Python package \`$1\` ($((n-1)) of $TOTAL_PKG). $1 $2"
 	[ -x "$(command -v "pip")" ] || installpkg python-pip >/dev/null 2>&1
 	yes | pip install "$1" || { _echo_failure && return 0; }
   _echo_success
 }
 
 function pacmanInstall() {
-	_echo_step "  (Installing \`$1\` ($((n-1)) of $TOTAL_PKG). $1 $2)"
+	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG). $1 $2"
 	installpkg "$1"|| { _echo_failure && return 0; }
   _echo_success
 }
 
 function installPackages() {
-  _echo_step "Installing required packages"; echo
 	([ -f "$1" ] && cp "$1" /tmp/packages.csv) || curl -Ls "$1" | sed '/^#/d' > /tmp/packages.csv
   TOTAL_PKG=$(wc -l < /tmp/packages.csv)
   # remove header line from total
@@ -98,23 +100,19 @@ function installPackages() {
 ###### => main #################################################################
 function main() {
   # main steps
-  _echo_step "Cocoa system configuration from dotfiles"; echo
+  _echo_step "Cocoa system configuration from dotfiles"; echo; echo
   local packages
   packages="$HOME/.config/cocoa/base.csv"
-  _echo_step "  (Install base packages)"
+  _echo_step "Install base packages"; echo; echo
   [[ -f $packages ]] && installPackages "$packages"
-  _echo_success
 
   packages="$HOME/.config/cocoa/hyprland.csv"
-  _echo_step "  (Install hyprland packages)"
+  _echo_step "Install hyprland packages"; echo; echo
   [[ -f $packages ]] && installPackages "$packages"
 
-  _echo_success; echo
-
   # save log
-  [[ -f ./chocolate.cocoa.log ]] && mv -f /tmp/chocolate.cocoa.log /var/log/chocolate.cocoa.log
+  [[ -f /tmp/chocolate.cocoa.log ]] && mv -f /tmp/chocolate.cocoa.log "$HOME"/.local/log/chocolate.cocoa.log
   exit 0
 }
 
 main "$@" | tee /tmp/chocolate.cocoa.log
-

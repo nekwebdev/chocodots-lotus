@@ -26,16 +26,19 @@ set +a
 # set keyboard repeat key speed when help
 xset r rate 210 40
 
-# set caps lock as another escape key
-setxkbmap -option caps:escape
 # remaps &		# or run a remaps script, switching caps/esc and more
 
 # load bashrc
 # shellcheck source=/dev/null
-[[ -f ~/.bashrc ]] && source "$XDG_CONFIG_HOME"/shell/bashrc
+if [ -n "$BASH_VERSION" ]; then
+    # include bashrc if it exists
+    if [ -f "$XDG_CONFIG_HOME/shell/bashrc" ]; then
+        source "$XDG_CONFIG_HOME/shell/bashrc"
+    fi
+fi
 
 # load keychain and ssh agent
 # shellcheck disable=SC2046,SC2006
-[[ -f "$HOME"/.ssh/id_ed25519 ]] &&  eval `keychain --agents ssh --eval id_ed25519`
+[[ -f "$HOME/.ssh/id_ed25519" ]] &&  eval `keychain --dir "$XDG_CONFIG_HOME/keychain" --agents ssh --eval id_ed25519`
 
 # start graphical server on user's current tty if tty1 and xorg not already running.
