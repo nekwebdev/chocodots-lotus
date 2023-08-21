@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# https://github.com/nekwebdev/chocodots-lotus-home
+# https://github.com/nekwebdev/chocodots-lotus
 # @nekwebdev
 # LICENSE: GPLv3
 #
@@ -11,6 +11,17 @@ set -e
 
 CHOCO_AUR="yay"
 command -v /usr/bin/paru >/dev/null 2>/dev/null && CHOCO_AUR="paru"
+
+distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+
+case $distro in
+  "Debian GNU/Linux")
+    PACKAGE="apt install -y";;
+  "Arch Linux")
+    PACKAGE="pacman --noconfirm --needed -S";;
+  *)
+    _exit_with_message "Could not determine distro";;
+esac
 
 ###### => echo helpers #########################################################
 # _echo_step() outputs a step collored in cyan (6), without outputing a newline.
@@ -25,7 +36,7 @@ function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
 function _echo_failure() { tput setaf 1;_echo_right "[ FAILED ]";tput sgr 0 0; }
 
 ###### => install helpers ######################################################
-function installpkg() { sudo pacman --noconfirm --needed -S "$@" >/dev/null 2>&1; }
+function installpkg() { sudo "$PACKAGE" "$@" >/dev/null 2>&1; }
 
 function aurInstall() {
 	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2"

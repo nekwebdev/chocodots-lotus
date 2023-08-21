@@ -1,4 +1,4 @@
-# https://github.com/nekwebdev/chocodots-lotus-home
+# https://github.com/nekwebdev/chocodots-lotus
 # @nekwebdev
 #,LICENSE: GPLv3
 #,
@@ -26,5 +26,5 @@
 ,perl-rename,"renames multiple files using Perl regular expressions."
 ,jq,"is a command-line JSON processor."
 #,misc
-A,dotbare,"manages your dotfiles interactively with fzf."
+C,https://github.com/kazhala/dotbare.git,"manages your dotfiles interactively with fzf."
 ,pacman-contrib,"are contributed scripts and tools for pacman systems."
