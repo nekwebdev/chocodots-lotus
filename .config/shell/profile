@@ -1,11 +1,20 @@
-#!/usr/bin/env sh
-# https://github.com/nekwebdev/chocodots-template
+# shellcheck shell=bash
+# https://github.com/nekwebdev/chocodots-lotus-home
 # @nekwebdev
 # LICENSE: GPLv3
+#
+# ~/.config/shell/profile
+#
+# symlink to ~/.bash_profile
+# startup script for interactive login shell, read once per login.
+# contains commands for setting environment variables.
+# future non-login shells inherit these variables.
+#
 
 # load user envirnoment variables
 ENVIRONMENTD="$HOME/.config/environment.d"
 set -a
+# shellcheck source=/dev/null
 if [ -d "$ENVIRONMENTD" ]; then
   for conf in "$ENVIRONMENTD"/*.conf
   do
@@ -21,10 +30,12 @@ xset r rate 210 40
 setxkbmap -option caps:escape
 # remaps &		# or run a remaps script, switching caps/esc and more
 
-# load .bashrc
-[[ -f ~/.bashrc ]] && . ~/.bashrc
+# load bashrc
+# shellcheck source=/dev/null
+[[ -f ~/.bashrc ]] && source "$XDG_CONFIG_HOME"/shell/bashrc
 
-# load keychain for ssh agent
-eval `keychain --agents ssh --eval id_ed25519`
+# load keychain and ssh agent
+# shellcheck disable=SC2046,SC2006
+[[ -f "$HOME"/.ssh/id_ed25519 ]] &&  eval `keychain --agents ssh --eval id_ed25519`
 
 # start graphical server on user's current tty if tty1 and xorg not already running.

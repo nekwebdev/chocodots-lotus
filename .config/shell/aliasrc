@@ -1,13 +1,25 @@
+# shellcheck shell=bash
+# https://github.com/nekwebdev/chocodots-lotus-home
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.config/shell/aliasrc
+#
+# commands aliases definitions.
+#
+
 # package manager
 aur_bin="yay"
 command -v /usr/bin/paru >/dev/null 2>/dev/null && aur_bin="paru"
 alias yay='$aur_bin'
-alias yeet="'$aur_bin' -Rcs"
+alias yeet='$aur_bin -Rcs'
 # alias pas='$aur_bin' -Slq | fzf --multi --preview "$aur_bin -Si {1}" | xargs -ro '$aur_bin' -S
 
 # bare git repository dotfiles
 alias dots=dotbare
 # alias dots='/usr/bin/git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles --work-tree=$HOME'
+
+alias cocoa='$XDG_CONFIG_HOME/cocoa/cocoa.sh'
 
 # colorize basic commands
 alias ls='ls --color=auto'

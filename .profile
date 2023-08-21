@@ -1,1 +1,0 @@
-/home/oj/.config/shell/profile

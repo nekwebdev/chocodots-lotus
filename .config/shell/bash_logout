@@ -1,0 +1,10 @@
+# shellcheck shell=bash
+# https://github.com/nekwebdev/chocodots-lotus-home
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.config/shell/bash_logout
+#
+# symlink to ~/.bash_logout
+# commands to excecute before logging out.
+#

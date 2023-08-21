@@ -1,0 +1,19 @@
+# shellcheck shell=bash
+# https://github.com/nekwebdev/chocodots-lotus-home
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.config/shell/bashrc
+#
+# symlink to ~/.bashrc
+# every interactive non-login shell reads .bashrc first.
+# sources our aliases and is the place to add bash related functions.
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# shellcheck source=/dev/null
+source "$XDG_CONFIG_HOME"/shell/aliasrc
+
+PS1='[\u@\h \W]\$ '
