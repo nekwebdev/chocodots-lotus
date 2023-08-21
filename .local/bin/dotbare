@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# https://github.com/nekwebdev/chocodots-lotus
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.local/bin/dotbare
+#
+# wrapper for dotbare.
+#
+
+SCRIPT_DIR="$HOME/.local/src/dotbare"
+[[ -x "$SCRIPT_DIR/dotbare" ]] && "$SCRIPT_DIR/dotbare" "$@" || echo "Install dotbare: git clone https://github.com/kazhala/dotbare.git $SCRIPT_DIR"
