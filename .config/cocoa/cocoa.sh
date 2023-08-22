@@ -108,7 +108,11 @@ function installPackages() {
 }
 
 ###### => functions ############################################################
-
+function installStarship() {
+	_echo_step "  Installing Starship prompt"
+  curl -sS https://starship.rs/install.sh | sh
+  _echo_success
+}
 
 ###### => main #################################################################
 function main() {
@@ -122,6 +126,9 @@ function main() {
   packages="$HOME/.config/cocoa/hyprland.csv"
   _echo_step "Install hyprland packages"; echo; echo
   [[ -f $packages ]] && installPackages "$packages"
+
+  _echo_step "Extra applications"; echo; echo
+  installStarship
 
   # save log
   [[ -f /tmp/chocolate.cocoa.log ]] && mv -f /tmp/chocolate.cocoa.log "$HOME"/.local/log/chocolate.cocoa.log

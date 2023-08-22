@@ -8,7 +8,8 @@
 #,
 #,TAG (A for AUR - G for git and make - P for pip - C for clone only - empty for pacman),NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing) Leave empty line at end.
 #,terminal utilities
-,exa,"is a modern replacement for the venerable file-listing command-line program ls"
+,curl,"is a command line tool and library for transferring data with URLs."
+,exa,"is a modern replacement for the venerable file-listing command-line program ls."
 ,btop,"is a monitor of system resources, bpytop ported to C++."
 ,rsync,"is a fast and versatile file copying tool for remote and local files."
 ,bat,"is a cat clone with syntax highlighting and git integration."
@@ -17,6 +18,7 @@
 ,unrar,"is the RAR uncompression program."
 ,unzip,"is for extracting and viewing files in .zip archives."
 ,nfs-utils,"supports programs for Network File Systems."
+,zoxide,"is a smarter cd command for your terminal."
 #,xdg
 ,xdg-utils,"are command line tools that assist applications with a variety of desktop integration tasks."
 #,ssh
