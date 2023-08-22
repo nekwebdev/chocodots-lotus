@@ -29,3 +29,8 @@ alias ls='exa -a --icons --color=always --group-directories-first'
 alias la='exa -lag --icons --color=always --group-directories-first --octal-permissions --no-time --no-filesize'
 alias ll='exa -lagh --icons --color=always --group-directories-first --octal-permissions'
 alias lg='exa -la --icons --color=always --group-directories-first --octal-permissions --no-time --no-filesize --no-permissions --no-user --git'
+
+# bat can also be batcat on debian
+bat_bin="batcat"
+command -v /usr/bin/bat >/dev/null 2>/dev/null && bat_bin="bat"
+alias bat='$bat_bin'
