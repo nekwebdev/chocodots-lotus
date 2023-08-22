@@ -15,8 +15,6 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-# iatest=$(expr index "$-" i)
-
 # sourced from zachbrowne.me
 
 # Source global definitions
@@ -32,16 +30,6 @@ elif [ -f /etc/bash_completion ]; then
 fi
 
 # EXPORTS
-
-# disable the bell
-# if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
-
-# Expand the history size
-export HISTFILESIZE=10000
-export HISTSIZE=500
-
-# don't put duplicate lines in the history and do not add lines that start with a space
-export HISTCONTROL=erasedups:ignoredups:ignorespace
 
 # check the window size after each command and, if necessary, update the values of LINES and COLUMNS
 shopt -s checkwinsize
