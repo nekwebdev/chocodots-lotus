@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2086
 # https://github.com/nekwebdev/chocodots-lotus
 # @nekwebdev
 # LICENSE: GPLv3
@@ -28,8 +29,15 @@ function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
 function _echo_failure() { tput setaf 1;_echo_right "[ FAILED ]";tput sgr 0 0; }
 
 ###### => install helpers ######################################################
-# shellcheck disable=SC2086
-function installpkg() { sudo $PACKAGE "$@" >/dev/null 2>&1; }
+function commandExists () { command -v $1 >/dev/null 2>&1; }
+
+function installpkg() {
+  if [[ $PACKAGER == "pacman" ]]; then
+    sudo pacman --noconfirm -S "$@" >/dev/null 2>&1
+  else
+    sudo $PACKAGER install -yq "$@" >/dev/null 2>&1
+  fi  
+}
 
 function aurInstall() {
 	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2"
@@ -120,14 +128,12 @@ function main() {
   exit 0
 }
 
-case $DISTRO in
-  "\"Debian GNU/Linux\"")
-    PACKAGE="apt install -y";;
-  "\"Arch Linux\"")
-    PACKAGE="pacman --noconfirm --needed -S"
-    IS_ARCH=true;;
-  *)
-    _exit_with_message "Could not determine DISTRO";;
-esac
+# check package manager
+PACKAGEMANAGER='apt yum dnf pacman'
+for pgm in ${PACKAGEMANAGER}; do
+	if commandExists ${pgm}; then
+		PACKAGER=${pgm}
+	fi
+done
 
 main "$@" | tee /tmp/chocolate.cocoa.log
