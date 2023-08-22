@@ -9,19 +9,11 @@
 #
 set -e
 
+###### => variables ############################################################
 CHOCO_AUR="yay"
 command -v /usr/bin/paru >/dev/null 2>/dev/null && CHOCO_AUR="paru"
-
-distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
-
-case $distro in
-  "Debian GNU/Linux")
-    PACKAGE="apt install -y";;
-  "Arch Linux")
-    PACKAGE="pacman --noconfirm --needed -S";;
-  *)
-    _exit_with_message "Could not determine distro";;
-esac
+DISTRO=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+IS_ARCH=false
 
 ###### => echo helpers #########################################################
 # _echo_step() outputs a step collored in cyan (6), without outputing a newline.
@@ -36,10 +28,12 @@ function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
 function _echo_failure() { tput setaf 1;_echo_right "[ FAILED ]";tput sgr 0 0; }
 
 ###### => install helpers ######################################################
-function installpkg() { sudo "$PACKAGE" "$@" >/dev/null 2>&1; }
+# shellcheck disable=SC2086
+function installpkg() { sudo $PACKAGE "$@" >/dev/null 2>&1; }
 
 function aurInstall() {
 	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2"
+  ! $IS_ARCH && _echo_failure && return 0
 	echo "$AUR_CHECK" | grep -q "^$1$" && _echo_success && return 0
 	"$CHOCO_AUR" -S --noconfirm "$1" >/dev/null 2>&1 || { _echo_failure && return 0; }
   _echo_success
@@ -84,7 +78,7 @@ function installPackages() {
   TOTAL_PKG=$(wc -l < /tmp/packages.csv)
   # remove header line from total
   TOTAL_PKG=$((TOTAL_PKG-1))
-	AUR_CHECK=$(pacman -Qqm)
+	$IS_ARCH && AUR_CHECK=$(pacman -Qqm)
   # ensure src directories exist
   mkdir -p "$HOME/.local/src"
 	while IFS=, read -r tag program comment; do
@@ -111,7 +105,7 @@ function installPackages() {
 ###### => main #################################################################
 function main() {
   # main steps
-  _echo_step "Cocoa system configuration from dotfiles"; echo; echo
+  _echo_step "Cocoa $DISTRO configuration from dotfiles"; echo; echo
   local packages
   packages="$HOME/.config/cocoa/base.csv"
   _echo_step "Install base packages"; echo; echo
@@ -125,5 +119,15 @@ function main() {
   [[ -f /tmp/chocolate.cocoa.log ]] && mv -f /tmp/chocolate.cocoa.log "$HOME"/.local/log/chocolate.cocoa.log
   exit 0
 }
+
+case $DISTRO in
+  "\"Debian GNU/Linux\"")
+    PACKAGE="apt install -y";;
+  "\"Arch Linux\"")
+    PACKAGE="pacman --noconfirm --needed -S"
+    IS_ARCH=true;;
+  *)
+    _exit_with_message "Could not determine DISTRO";;
+esac
 
 main "$@" | tee /tmp/chocolate.cocoa.log
