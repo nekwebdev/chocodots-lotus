@@ -12,7 +12,7 @@
 #
 # sources: ChrisTitusTech
 
-# If not running interactively, don't do anything
+# if not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 # sourced from zachbrowne.me
@@ -38,8 +38,18 @@ shopt -s checkwinsize
 shopt -s histappend
 PROMPT_COMMAND='history -a'
 
-# allow ctrl-S for history navigation (with ctrl-R)
-[[ $- == *i* ]] && stty -ixon
+# only if running interactively
+if [[ $- == *i* ]]; then
+  # allow ctrl-S for history navigation (with ctrl-R)
+	stty -ixon
+  # better bash auto complete
+  bind '"\t": menu-complete'
+  bind '"\e[Z": menu-complete-backward'
+  bind '"\e[A": history-search-backward'
+  bind '"\e[B": history-search-forward'
+  bind '"\eOA": history-search-backward'
+  bind '"\eOB": history-search-forward'
+fi
 
 # color for manpages in less makes manpages a little easier to read
 export LESS_TERMCAP_mb=$'\E[01;31m'

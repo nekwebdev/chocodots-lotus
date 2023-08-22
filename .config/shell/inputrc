@@ -21,3 +21,4 @@ set mark-directories on
 set blink-matching-paren on
 set editing-mode vi
 set keymap vi-insert
+set menu-complete-display-prefix on
