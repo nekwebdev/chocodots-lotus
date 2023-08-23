@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# https://github.com/nekwebdev/chocodots-lotus
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.local/bin/diff-so-fancy
+#
+# wrapper for diff-so-fancy.
+#
+
+SCRIPT_DIR="$HOME/.local/src/diff-so-fancy"
+if [[ -x "$SCRIPT_DIR/diff-so-fancy" ]]; then
+  "$SCRIPT_DIR/diff-so-fancy" "$@"
+else
+  echo "Install diff-so-fancy: git clone https://github.com/so-fancy/diff-so-fancy.git $SCRIPT_DIR"
+fi

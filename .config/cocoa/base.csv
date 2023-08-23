@@ -13,7 +13,7 @@
 ,btop,"is a monitor of system resources, bpytop ported to C++."
 ,rsync,"is a fast and versatile file copying tool for remote and local files."
 ,bat,"is a cat clone with syntax highlighting and git integration."
-,diff-so-fancy,"is good-looking diffs with diff-highlight and more."
+C,https://github.com/so-fancy/diff-so-fancy.git,"is good-looking diffs with diff-highlight and more."
 ,neofetch,"is a CLI system information tool written in BASH that supports displaying images."
 ,unrar,"is the RAR uncompression program."
 ,unzip,"is for extracting and viewing files in .zip archives."
