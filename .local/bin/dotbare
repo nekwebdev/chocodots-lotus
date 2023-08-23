@@ -9,4 +9,8 @@
 #
 
 SCRIPT_DIR="$HOME/.local/src/dotbare"
-[[ -x "$SCRIPT_DIR/dotbare" ]] && "$SCRIPT_DIR/dotbare" "$@" || echo "Install dotbare: git clone https://github.com/kazhala/dotbare.git $SCRIPT_DIR"
+if [[ -x "$SCRIPT_DIR/dotbare" ]]; then
+  "$SCRIPT_DIR/dotbare" "$@"
+else
+  echo "Install dotbare: git clone https://github.com/kazhala/dotbare.git $SCRIPT_DIR"
+fi
