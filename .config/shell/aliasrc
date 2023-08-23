@@ -34,3 +34,21 @@ alias lg='exa -la --icons --color=always --group-directories-first --octal-permi
 bat_bin="batcat"
 command -v /usr/bin/bat >/dev/null 2>/dev/null && bat_bin="bat"
 alias bat='$bat_bin'
+
+# fzf helpers
+#  --preview 'bat --color=always --style=numbers --line-range=:500 {}'
+fzf_frame="fzf --multi \
+--height=50% \
+--margin=5%,2%,2%,5% \
+--layout=reverse-list \
+--border=double \
+--info=inline \
+--prompt='$>' \
+--pointer='→' \
+--marker='♡' \
+--header='CTRL-c or ESC to quit' \
+--color='dark,fg:magenta' "
+
+# shellcheck disable=SC2139
+# no issue expanding this variable only when sd is defined 
+alias sd="cd ~ && cd \$(find . -type d | $fzf_frame)"

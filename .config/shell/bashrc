@@ -22,15 +22,6 @@ if [ -f /etc/bashrc ]; then
 	 . /etc/bashrc
 fi
 
-# Enable bash programmable completion features in interactive shells
-if [ -f /usr/share/bash-completion/bash_completion ]; then
-	. /usr/share/bash-completion/bash_completion
-elif [ -f /etc/bash_completion ]; then
-	. /etc/bash_completion
-fi
-
-# EXPORTS
-
 # check the window size after each command and, if necessary, update the values of LINES and COLUMNS
 shopt -s checkwinsize
 
@@ -69,6 +60,15 @@ if [[ -f "$HOME/.local/src/dotbare/dotbare.plugin.bash" ]]; then
   _dotbare_completion_cmd dots
 fi
 
+# Enable bash programmable completion features in interactive shells
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+	. /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+	. /etc/bash_completion
+fi
+
 # custom prompt
 eval "$(starship init bash)"
+
+# zoxide, better cd
 eval "$(zoxide init bash)"
