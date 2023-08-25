@@ -114,6 +114,12 @@ function installStarship() {
   _echo_success
 }
 
+function debianConfigs() {
+	_echo_step "  Create symlink bat for batcat"
+	[[ -x /usr/bin/batcat ]] && ln -sfT /usr/bin/batcat "$HOME/.local/bin/bat"
+  _echo_success
+}
+
 ###### => main #################################################################
 function main() {
   # main steps
@@ -130,14 +136,19 @@ function main() {
   _echo_step "Extra applications"; echo; echo
   installStarship
 
+  if [[ $PACKAGER == "apt" ]]; then
+  	_echo_step "Debian extra configurations"; echo; echo
+		debianConfigs
+  fi
+
   # save log
   [[ -f /tmp/chocolate.cocoa.log ]] && mv -f /tmp/chocolate.cocoa.log "$HOME"/.local/log/chocolate.cocoa.log
   exit 0
 }
 
 # check package manager
-PACKAGEMANAGER='apt yum dnf pacman'
-for pgm in ${PACKAGEMANAGER}; do
+PACKAGEMANAGERS='apt yum dnf pacman'
+for pgm in ${PACKAGEMANAGERS}; do
 	if commandExists ${pgm}; then
 		PACKAGER=${pgm}
 	fi
