@@ -1,0 +1,101 @@
+" https://github.com/nekwebdev/chocodots-lotus
+" @nekwebdev
+" LICENSE: GPLv3
+" #
+" ~/.config/vim/vimrc
+" #
+" vimrc config file
+
+" set the autoload directory
+let rtp=&runtimepath
+set runtimepath=~/.config/vim
+let &runtimepath.=','.rtp.',~/.config/vim/after'
+
+" move viminfo
+set viminfo+=n~/.config/vim/viminfo
+
+" move swapfiles
+set directory=~/.config/vim/swap//,.,~/tmp,/var/tmp,/tmp
+
+" move backup files
+set backupdir=~/.config/vim/backup//,.,~/tmp,~/
+
+" move undo files
+set undodir=~/.config/vim/undo//,.
+
+" install plugin manager https://github.com/junegunn/vim-plug
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/config/vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin()
+" The default plugin directory will be as follows:
+"   - Vim (Linux/macOS): '~/.vim/plugged'
+"   - Vim (Windows): '~/vimfiles/plugged'
+"   - Neovim (Linux/macOS/Windows): stdpath('data') . '/plugged'
+" You can specify a custom plugin directory by passing it as the argument
+"   - e.g. `call plug#begin('~/.vim/plugged')`
+"   - Avoid using standard Vim directory names like 'plugin'
+
+" Make sure you use single quotes
+
+" Just a shitload of color schemes.
+" https://github.com/flazz/vim-colorschemes#current-colorschemes
+Plug 'flazz/vim-colorschemes'
+
+" Fuzzy finder -- absolutely must have.
+Plug 'kien/ctrlp.vim'
+
+" Support for easily toggling comments.
+Plug 'tpope/vim-commentary'
+
+" In addtion to the above plugins, you'll likely need some for individual
+" non-standard syntaxes that aren't pre-bundled with vim. Here are some I use,
+" these are required for me, but depending on what code you write, obviously
+" this may differ for you.
+
+" Proper JSON filetype detection, and support.
+Plug 'leshill/vim-json'
+
+" vim already has syntax support for javascript, but the indent support is
+" horrid. This fixes that.
+Plug 'pangloss/vim-javascript'
+
+" vim indents HTML very poorly on it's own. This fixes a lot of that.
+Plug 'indenthtml.vim'
+
+" I write markdown a lot. This is a good syntax.
+Plug 'tpope/vim-markdown'
+
+" Initialize plugin system
+" - Automatically executes `filetype plugin indent on` and `syntax enable`.
+call plug#end()
+" You can revert the settings after the call like so:
+"   filetype indent off   " Disable file-type-specific indentation
+"   syntax off            " Disable syntax highlighting
+
+" We have to turn this stuff back on if we want all of our features.
+filetype indent on " Filetype auto-detection
+syntax on " Syntax highlighting
+
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set expandtab " use spaces instead of tabs.
+set smarttab " let's tab key insert 'tab stops', and bksp deletes tabs.
+set shiftround " tab / shifting moves to closest tabstop.
+set autoindent " Match indents on new lines.
+set smartindent " Intellegently dedent / indent new lines based on rules.
+
+" Make search more sane
+set ignorecase " case insensitive search
+set smartcase " If there are uppercase letters, become case-sensitive.
+set incsearch " live incremental searching
+set showmatch " live match highlighting
+set hlsearch " highlight matches
+set gdefault " use the `g` flag by default.
+
+" allow the cursor to go anywhere in visual block mode.
+set virtualedit+=block
