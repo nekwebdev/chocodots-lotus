@@ -22,20 +22,6 @@ function _echo_right() { local T=$1;echo;tput cuu1;tput cuf "$(tput cols)";tput 
 # _echo_success() outputs [ OK ] in green (2), at the rightmost side of the screen.
 function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
 
-###### => parse flags ##########################################################
-while (( "$#" )); do
-  case "$1" in
-    --id)
-      if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
-        SSH_ID=$2; shift
-      else
-        _exit_with_message "when using --id an id name must be specified. Example: '--id my_ssh_key'"
-      fi ;;
-    *)
-      shift ;;
-  esac
-done
-
 ###### => main #################################################################
 function main() {
     _echo_step "Checking if $SSH_ID already exists"; echo
@@ -64,6 +50,20 @@ function main() {
 
     cat "$HOME/.ssh/$SSH_ID.pub"; echo
 }
+
+###### => parse flags ##########################################################
+while (( "$#" )); do
+  case "$1" in
+    --id)
+      if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+        SSH_ID=$2; shift
+      else
+        _exit_with_message "when using --id an id name must be specified. Example: '--id my_ssh_key'"
+      fi ;;
+    *)
+      shift ;;
+  esac
+done
 
 [[ -z $SSH_ID ]] && _exit_with_message "use --id with an id name. Example: 'ssh-setup --id my_ssh_key'"
 
