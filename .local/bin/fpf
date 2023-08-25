@@ -1,0 +1,477 @@
+#!/usr/bin/env bash
+# https://github.com/nekwebdev/chocodots-lotus
+# @nekwebdev
+# LICENSE: GPLv3
+#
+# ~/.local/bin/fpf
+#
+# script touse fzf for package managers, modified from https://github.com/ericlay/fuzzy-pkg-finder
+#
+set -e
+###### => variables ############################################################
+available_managers=("apt" "pacman")
+available_preview_tools=("bat" "batcat" "cat")
+common_bat_args=("--color=always")
+common_fzf_args=(
+	"--multi"
+	"--exact"
+	"--height=50%"
+	"--margin=5%,2%,2%,5%"
+	"--layout=reverse-list"
+	"--info=hidden"
+	"--prompt=$>"
+	"--pointer=→"
+	"--marker=♡"
+	"--ansi"
+	"--cycle"
+)
+
+fzf_base_shortcut="fzf --multi \
+--exact \
+--height=50% \
+--margin=5%,2%,2%,5% \
+--layout=reverse-list \
+--border=double \
+--info=hidden \
+--prompt='$>' \
+--pointer='→' \
+--marker='♡' \
+--color='dark,fg:magenta' \
+--ansi \
+--cycle "
+
+###### => display help screen ##################################################
+function display_help() {
+    echo "  Description:"
+    echo "    Use fzf to search and install packages"
+    echo
+    echo "  Usage:"
+    echo "    fzf"
+    echo "    fzf          [-a | --aur] [-l | --list-installed]" 
+    echo "                 [-la | --list-aur-installed] [-R | --remove]"
+    echo "                 [-o | --orphans] [-h | --help]"
+    echo
+    echo "  Options:"
+    echo "    -h --help    Show this screen."
+    echo "    -a --aur     Search and install using an aur helper (yay or paru)."
+    echo "    -l           List installed packages."
+    echo "    --list-installed"
+    echo "    -la          List aur installed packages."
+    echo "    --list-aur-installed"
+    echo "    -R --remove  Search installed packages for removal."
+    echo "    -o --orphans Search orphaned packages for removal."
+    echo
+}
+
+###### => echo helpers #########################################################
+# _echo_step() outputs a step collored in cyan (6), without outputing a newline.
+function _echo_step() { tput setaf 6;echo -n "$1";tput sgr 0 0; }
+# _exit_with_message() outputs and logs a message in red (1) before exiting the script.
+function _exit_with_message() { echo;tput setaf 1;echo "$1";tput sgr 0 0;echo;exit 1; }
+# _echo_right() outputs a string at the rightmost side of the screen.
+function _echo_right() { local T=$1;echo;tput cuu1;tput cuf "$(tput cols)";tput cub ${#T};echo "$T"; }
+# _echo_success() outputs [ OK ] in green (2), at the rightmost side of the screen.
+function _echo_success() { tput setaf 2;_echo_right "[ OK ]";tput sgr 0 0; }
+
+
+
+
+###### => functions ############################################################
+function fzf_select() {
+  fzf "${fzf_base_shortcut[@]}" -q "$1"
+}
+
+#	Check things are up to date
+UpdateInfos() {
+	[ -f /var/lib/pacman/sync/core.files ] || { _echo_step "Syncing files database"; sudo pacman -Fy; }
+  d1=$(stat -c %y /var/lib/pacman/sync/core.files)
+  d2=$(stat -c %y /var/lib/pacman/sync/core.db)
+	d1="${d1:0:10}"
+	d2="${d2:0:10}"
+	[[ "${d2///-/}" > "${d1//-/}" ]] && { _echo_step "Files database is out of date\nSyncing now..."; sudo pacman -Fy; }
+}
+
+UpdateAptInfos() {
+	[ -f /var/lib/apt/lists/security.debian.org_debian-security_dists_bookworm-security_InRelease ] || { _echo_step "Syncing files database"; sudo apt update; }
+  d1=$(stat -c %y /var/lib/apt/lists/partial)
+  d2=$(date -I'date')
+	d1="${d1:0:10}"
+	d2="${d2:0:10}"
+	echo "$d1"
+	echo "$d2"
+	# [[ "${d2///-/}" > "${d1//-/}" ]] && { _echo_step "Files database is out of date. Syncing now..."; sudo apt update; }
+}
+
+# UpdateAurInfos() {
+# 	echo -e "Syncing AUR package information..."
+# 	[[ ! -d /tmp/aur ]] && mkdir -p /tmp/aur
+# 	zcat <(curl  https://aur.archlinux.org/packages-meta-ext-v1.json.gz) |
+# 	jq --compact-output '.[] |
+# 	{ Name, Description } ' |
+# 	awk -F'"' '{ printf "%-20s\t%s\n", $4, $8}' > /tmp/aur/packages-meta
+# 	while IFS= read -r pkgName; do
+# 		grep -w "^$pkgName " /tmp/aur/packages-meta >> /tmp/aur/installed
+# 	done < <(pacman -Qqm)
+# 	sort <(comm -23 <(cat /tmp/aur/packages-meta | sort) <( cat /tmp/aur/installed | sort)) <(comm -12 <( cat /tmp/aur/packages-meta | sort) <(cat /tmp/aur/installed | sort) | awk -F"\t" '{print $1" \033[32m*\033[0m  ", $2}') -o /tmp/aur/packages-meta
+# }
+
+aurInstall() {
+	[ -f /tmp/aur/packages-meta ] || UpdateAurInfos
+	# d1=$(stat -c %y /tmp/aur/packages-meta)
+	# d1="${d1:0:10}"
+	# d2=$(date -I'date')
+	# [[ "${d2///-/}" > "${d1//-/}" ]] && UpdateAurInfos		
+	# cat /tmp/aur/packages-meta |
+	# "$fzf_base_shortcut" -q "$1" \
+	# --preview="$CATBIN <(yay -Si {1} 2>/dev/null || paru -Si {1}) <(pacman -Ql {1} 2>/dev/null | awk '{print \$2}')" \
+	# --header="$(echo -e ' Select packages to install\n (use TAB to toggle selection)\n')" \
+	# --tiebreak=begin,chunk,length \
+	# --bind=ctrl-p:preview:'curl --silent https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD\?h={1}' \
+	# --bind=ctrl-x:preview:'cat <(yay -Si {1} 2>/dev/null || paru -Si {1}) <(pacman -Ql {1} 2>/dev/null | awk "{print \$2}")' |
+	# awk '{print $1}' |
+	# sed -e 's/\*$//' |
+	# xargs -ro $AHELPR -S
+}
+
+
+
+function is_deborphan_installed() {
+    dpkg -l deborphan &>/dev/null
+}
+
+function install_deborphan() {
+    _echo_step "Installing deborphan..."; echo
+    sudo apt-get install deborphan -y
+    _echo_success
+}
+
+function run_apt_update() {
+	last_update=$(stat -c %Y /var/cache/apt/ | date -d @"$(cat)" +%Y%m%d)
+	current_date=$(date -d "-24 hours" +%Y%m%d)
+
+	if [[ "$last_update" -lt "$current_date" ]]; then
+		sudo apt update
+	fi
+}
+
+function check_environment() {
+	# find the available package manager
+	manager=""
+	for pkg_manager in "${available_managers[@]}"; do
+			if command -v "$pkg_manager" &> /dev/null; then
+					manager="$pkg_manager"
+					break
+			fi
+	done
+
+	# check if a package manager was found
+	if [ -z "$manager" ]; then
+		_exit_with_message "No supported package manager found."
+	fi
+
+	# detect the available preview tool
+	preview_tool=""
+	for tool in "${available_preview_tools[@]}"; do
+			if command -v "${tool%% *}" &> /dev/null; then
+					preview_tool="$tool"
+					break
+			fi
+	done
+
+	# check if a preview tool was found
+	if [[ -z "$preview_tool" ]]; then
+			_exit_with_message "You need bat, batcat or cat installed."
+	fi
+
+	# package manager specific checks
+	# detect available aur helper
+	if [[ $manager == "pacman" ]]; then
+		aur_helper=""
+		if [[ -z $aur_helper ]]; then
+			if [[ -f /usr/bin/paru ]]; then 
+				aur_helper="paru"
+			elif [[ -f /usr/bin/yay ]]; then
+				aur_helper="yay"
+			else
+				_exit_with_message "Suitable AUR Helper not found.\nPlease install \"paru\" or \"yay\" to continue."
+			fi
+		fi
+	elif [[ $manager == "apt" ]]; then
+		run_apt_update
+	fi
+}
+
+function list_apt_installed() {
+	# list installed packages
+	installed_packages=$(apt list --installed | sed 1d | cut -d/ -f1)
+
+	# listing installed packages with fzf and bat
+	if [[ $preview_tool == "cat" ]]; then
+		selected_packages=$(
+			echo "$installed_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to print information from' \
+			--preview "apt-cache show {1} | $preview_tool"
+		)
+	else
+		selected_packages=$(
+			echo "$installed_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to print information from' \
+			--preview "apt-cache show {1} | $preview_tool ${common_bat_args[*]} --file-name {1}"
+		)
+	fi
+
+	# check if no package was selected, should never happen
+	if [ -z "$selected_packages" ]; then
+		_echo_step "No package selected for information."
+		exit 0
+	fi
+
+	# display selected packages
+	if [[ -n "$selected_packages" ]]; then
+		for package in ${selected_packages}; do
+			_echo_step "$package information:"; echo
+			if [[ $preview_tool == "cat" ]]; then
+				apt-cache show "$package" | "$preview_tool"
+			else
+				apt-cache show "$package" | "$preview_tool" "${common_bat_args[@]}" --file-name "$package"
+			fi
+			_echo_success
+		done
+	fi
+}
+
+function remove_apt_orphaned() {
+	if ! is_deborphan_installed; then
+    install_deborphan
+	fi
+	orphaned_packages=$(deborphan)
+
+	# listing orphaned packages with fzf and bat
+	if [[ $preview_tool == "cat" ]]; then
+		selected_packages=$(
+			echo "$orphaned_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to remove' \
+			--preview "apt-cache show {1} | $preview_tool"
+		)
+	else
+		selected_packages=$(
+			echo "$orphaned_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to remove' \
+			--preview "apt-cache show {1} | $preview_tool ${common_bat_args[*]} --file-name {1}"
+		)
+	fi
+
+	# check if no package was selected, should never happen
+	if [ -z "$selected_packages" ]; then
+		_echo_step "No package selected for removal."
+		exit 0
+	fi
+
+	# remove selected packages
+	if [[ -n "$selected_packages" ]]; then
+		_echo_step "Removing orphaned packages: $selected_packages"; echo
+		sudo apt remove "$selected_packages"
+		_echo_success
+	fi
+}
+
+function remove_apt_package() {
+	# list installed packages
+	installed_packages=$(apt list --installed | sed 1d | cut -d/ -f1)
+
+	# listing installed packages with fzf and bat
+	if [[ $preview_tool == "cat" ]]; then
+		selected_packages=$(
+			echo "$installed_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to remove' \
+			--preview "apt-cache show {1} | $preview_tool"
+		)
+	else
+		selected_packages=$(
+			echo "$installed_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to remove' \
+			--preview "apt-cache show {1} | $preview_tool ${common_bat_args[*]} --file-name {1}"
+		)
+	fi
+
+	# check if no package was selected, should never happen
+	if [ -z "$selected_packages" ]; then
+		_echo_step "No package selected for removal."
+		exit 0
+	fi
+
+	# remove selected packages
+	if [[ -n "$selected_packages" ]]; then
+		_echo_step "Removing packages: $selected_packages"; echo
+		sudo apt remove "$selected_packages"
+		_echo_success
+	fi
+}
+
+function install_apt_package() {
+	# list available packages
+	available_packages=$(apt list | sed 1d | cut -d/ -f1)
+
+	# listing available packages with fzf and bat
+	if [[ $preview_tool == "cat" ]]; then
+		selected_packages=$(
+			echo "$available_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to install' \
+			--preview "apt-cache show {1} | $preview_tool"
+		)
+	else
+		selected_packages=$(
+			echo "$available_packages" |
+			fzf "${common_fzf_args[@]}" -q "$1" \
+			--header='Choose a package to install' \
+			--preview "apt-cache show {1} | $preview_tool ${common_bat_args[*]} --file-name {1}"
+		)
+	fi
+
+	# check if no package was selected, should never happen
+	if [ -z "$selected_packages" ]; then
+		_echo_step "No package selected for install."
+		exit 0
+	fi
+
+	# install selected packages
+	if [[ -n "$selected_packages" ]]; then
+		_echo_step "Installing packages: $selected_packages"; echo
+		sudo apt install "$selected_packages"
+		_echo_success
+	fi
+}
+
+# ensure environment is ready
+check_environment
+
+# install from package manager if no argument given
+if [[ ! "$1" =~ ^- ]]; then
+	[[ $manager == "apt" ]] && install_apt_package "$1"
+	[[ $manager == "pacman" ]] && aurInstall "$1"
+else
+	for opt in "$@"; do
+		case $opt in
+			-h|--help)
+				display_help
+			;;
+			-R|--remove)
+				[[ $manager == "apt" ]] && remove_apt_package "$2"
+				[[ $manager == "pacman" ]] && aurInstall "$2"
+			;;
+			-a|--aur)
+			Aur "$2"
+			;;
+			-l|--list-installed)
+				[[ $manager == "apt" ]] && list_apt_installed "$2"
+				[[ $manager == "pacman" ]] && aurInstall "$2"
+			;;
+			-la|--list-aur-installed)
+				AurInstalled "$2"
+				;;
+			-o|--orphans)
+				[[ $manager == "apt" ]] && remove_apt_orphaned "$2"
+				[[ $manager == "pacman" ]] && aurInstall "$2"
+			;;			
+			-*) 
+				echo "Invalid Usage"
+				display_help
+			;;
+		esac
+	done
+fi
+
+
+
+
+
+# #	check for bat
+# CATBIN=""
+# if [[ -z $CATBIN ]]; then
+#   if [[ -f /usr/bin/bat ]]; then 
+#     CATBIN="bat"
+#   elif [[ -f /usr/bin/batcat ]]; then
+#     CATBIN="batcat"
+#   elif [[ -f /usr/bin/cat ]]; then
+#     CATBIN="cat"
+#   else
+#     _exit_with_message "You need bat, batcat or cat installed."
+#   fi
+# fi
+
+# echo "$PACKAGER"
+# #	update the files database
+# echo "$1"
+# [[ $PACKAGER == "apt" ]] && UpdateAptInfos
+# # [[ $PACKAGER == "pacman" ]] && UpdateInfos
+# echo "$1"
+
+# # install from package manager if no argument given.
+# if [[ ! "$1" =~ ^- ]]; then
+# 	echo "got arg $1"
+# 	[[ $PACKAGER == "apt" ]] && aptInstall "$1"
+# 	[[ $PACKAGER == "pacman" ]] && aurInstall "$1"
+# else
+# 	for opt in "$@"; do
+# 		case $opt in
+#     		-a|--aur)
+# 				Aur "$2"
+# 				;;
+#        		-l|--list-installed)
+#        			Installed "$2"
+#        			;;
+#        		-la|--list-aur-installed)
+#        			AurInstalled "$2"
+#        			;;
+#        		-o|--orphans)
+#        			Orphans "$2"
+#        			;;
+#        		-R|--remove)
+#        			Remove "$2"
+#        			;;
+#     		-h|--help)
+#        			Help
+#        			;;       			
+#     		-*) 
+#        			echo "Invalid Usage"
+#        			Help
+#        			;;
+#     	esac
+# 	done
+# fi
+
+# packages="$(apt list --verbose 2>/dev/null | \
+#         # remove "Listing..."
+#         tail --lines +2 | \
+#         # place the description on the same line
+#         # separate the description and the other information
+#         # with a ^
+#         sd $'\n {2}([^ ])' $'^$1' | \
+#         # place the package information and the package description
+#         # in a table with two columns
+#         column -t -s^ | \
+#         # select packages with fzf
+#         fzf --multi | \
+#         # remove everything except the package name
+#         cut --delimiter '/' --fields 1 | \
+#         # escape selected packages (to avoid unwanted code execution)
+#         # and remove line breaks
+#         xargs --max-args 1 --no-run-if-empty printf "%q ")"
+
+###### => parse flags ##########################################################
+# while (( "$#" )); do
+#   case "$1" in
+#     -h|--help) displayHelp; exit 0 ;;
+#     -a | --aur]) CHOCO_DATA=true; shift ;;
+#     --cocoa) CHOCO_COCOA=true; shift ;;
+#     *)
+#       shift ;;
+#   esac
+# done
