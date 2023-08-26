@@ -11,10 +11,24 @@
 set -e
 
 ###### => variables ############################################################
-CHOCO_AUR="yay"
-command -v /usr/bin/paru >/dev/null 2>/dev/null && CHOCO_AUR="paru"
-DISTRO=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
-IS_ARCH=false
+available_managers=("apt" "pacman")
+desktop_env=""
+
+###### => display help screen ##################################################
+function display_help() {
+    echo "  Description:"
+    echo "    Use cocoa to setup a system"
+    echo
+    echo "  Usage:"
+    echo "    cocoa"
+    echo "    cocoa        [--de ] name" 
+    echo "                 [-h | --help]"
+    echo
+    echo "  Options:"
+    echo "    -h --help    Show this screen."
+    echo "    --de         Desktop csv package list, example: --de hyprland"
+    echo
+}
 
 ###### => echo helpers #########################################################
 # _echo_step() outputs a step collored in cyan (6), without outputing a newline.
@@ -32,18 +46,18 @@ function _echo_failure() { tput setaf 1;_echo_right "[ FAILED ]";tput sgr 0 0; }
 function commandExists () { command -v $1 >/dev/null 2>&1; }
 
 function installpkg() {
-  if [[ $PACKAGER == "pacman" ]]; then
+  if [[ $manager == "pacman" ]]; then
     sudo pacman --noconfirm -S "$@" >/dev/null 2>&1
   else
-    sudo $PACKAGER install -yq "$@" >/dev/null 2>&1
+    sudo $manager install -yq "$@" >/dev/null 2>&1
   fi  
 }
 
 function aurInstall() {
 	_echo_step "  Installing \`$1\` ($((n-1)) of $TOTAL_PKG) from the AUR. $1 $2"
-  ! $IS_ARCH && _echo_failure && return 0
+  [[ $manager != "pacman" ]] && _echo_failure && return 0
 	echo "$AUR_CHECK" | grep -q "^$1$" && _echo_success && return 0
-	"$CHOCO_AUR" -S --noconfirm "$1" >/dev/null 2>&1 || { _echo_failure && return 0; }
+	"$aur_bin" -S --noconfirm "$1" >/dev/null 2>&1 || { _echo_failure && return 0; }
   _echo_success
 }
 
@@ -86,7 +100,7 @@ function installPackages() {
   TOTAL_PKG=$(wc -l < /tmp/packages.csv)
   # remove header line from total
   TOTAL_PKG=$((TOTAL_PKG-1))
-	$IS_ARCH && AUR_CHECK=$(pacman -Qqm)
+	[[ $manager == "pacman" ]] && AUR_CHECK=$(pacman -Qqm)
   # ensure src directories exist
   mkdir -p "$HOME/.local/src"
 	while IFS=, read -r tag program comment; do
@@ -108,10 +122,33 @@ function installPackages() {
 }
 
 ###### => functions ############################################################
+function check_environment() {
+	# find the available package manager
+	manager=""
+	for pkg_manager in "${available_managers[@]}"; do
+			if commandExists "$pkg_manager"; then
+					manager="$pkg_manager"
+					break
+			fi
+	done
+
+	# get information about the distro
+	distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+
+	# find the aur helper binary
+	aur_bin="yay"
+	command -v /usr/bin/paru >/dev/null 2>/dev/null && aur_bin="paru"
+}
+
 function installStarship() {
-	_echo_step "  Installing Starship prompt"
-  curl -sS https://starship.rs/install.sh | sh
-  _echo_success
+	if commandExists starship; then
+		_echo_step "  Starship prompt already installed"
+		_echo_success
+	else
+		_echo_step "  Installing Starship prompt"
+		curl -sS https://starship.rs/install.sh | sh
+		_echo_success
+	fi
 }
 
 function debianConfigs() {
@@ -123,20 +160,22 @@ function debianConfigs() {
 ###### => main #################################################################
 function main() {
   # main steps
-  _echo_step "Cocoa $DISTRO configuration from dotfiles"; echo; echo
+  _echo_step "Cocoa $distro configuration from dotfiles"; echo; echo
   local packages
-  packages="$HOME/.config/cocoa/base.csv"
+  packages="$HOME/.config/cocoa/base/$manager.base.csv"
   _echo_step "Install base packages"; echo; echo
   [[ -f $packages ]] && installPackages "$packages"
 
-  packages="$HOME/.config/cocoa/hyprland.csv"
-  _echo_step "Install hyprland packages"; echo; echo
-  [[ -f $packages ]] && installPackages "$packages"
+	if [[ -n $desktop_env ]]; then
+		packages="$HOME/.config/cocoa/desktop/$manager.$desktop_env.csv"
+		_echo_step "Install $desktop_env packages"; echo; echo
+		[[ -f $packages ]] && installPackages "$packages"
+	fi
 
   _echo_step "Extra applications"; echo; echo
   installStarship
 
-  if [[ $PACKAGER == "apt" ]]; then
+  if [[ $manager == "apt" ]]; then
   	_echo_step "Debian extra configurations"; echo; echo
 		debianConfigs
   fi
@@ -146,12 +185,21 @@ function main() {
   exit 0
 }
 
-# check package manager
-PACKAGEMANAGERS='apt yum dnf pacman'
-for pgm in ${PACKAGEMANAGERS}; do
-	if commandExists ${pgm}; then
-		PACKAGER=${pgm}
-	fi
+###### => parse flags ##########################################################
+while (( "$#" )); do
+  case "$1" in
+    -h|--help) display_help; exit 0 ;;
+    --de)
+      if [ -n "$2" ] && [ "${2:0:1}" != "-" ]; then
+        desktop_env=$2; shift
+      else
+        _exit_with_message "when using --de a csv name must be given. Example: '--de hyprland'"
+      fi ;;
+    *)
+      shift ;;
+  esac
 done
+
+check_environment
 
 main "$@" | tee /tmp/chocolate.cocoa.log

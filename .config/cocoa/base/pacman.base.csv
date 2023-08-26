@@ -1,0 +1,35 @@
+#,https://github.com/nekwebdev/chocodots-lotus
+#,@nekwebdev
+#,LICENSE: GPLv3
+#,
+#,~/.config/cocoa/base.csv
+#,
+#,list of all applications to install as a base for our system.
+#,
+#,TAG (A for AUR - G for git and make - P for pip - C for clone only - empty for pacman),NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing) Leave empty line at end.
+#,terminal utilities
+,curl,"is a command line tool and library for transferring data with URLs."
+,exa,"is a modern replacement for the venerable file-listing command-line program ls."
+,btop,"is a monitor of system resources, bpytop ported to C++."
+,rsync,"is a fast and versatile file copying tool for remote and local files."
+,bat,"is a cat clone with syntax highlighting and git integration."
+,neofetch,"is a CLI system information tool written in BASH that supports displaying images."
+,unzip,"is for extracting and viewing files in .zip archives."
+,zoxide,"is a smarter cd command for your terminal."
+,tree,"is a directory listing program displaying a depth indented list of files."
+,fzf,"is a command-line fuzzy finder."
+C,https://github.com/so-fancy/diff-so-fancy.git,"is good-looking diffs with diff-highlight and more."
+C,https://github.com/kazhala/dotbare.git,"manages your dotfiles interactively with fzf."
+#,xdg
+,xdg-utils,"are command line tools that assist applications with a variety of desktop integration tasks."
+#,ssh
+,keychain,"is a front-end to ssh-agent, allowing one long-running ssh-agent process per system, rather than per login."
+#,tools
+,moreutils,"is a collection of useful unix tools."
+,jq,"is a command-line JSON processor."
+#,misc
+,pacman-contrib,"are contributed scripts and tools for pacman systems."
+#,archspecific
+,nfs-utils,"supports programs for Network File Systems."
+,perl-rename,"renames multiple files using Perl regular expressions."
+,unrar,"is the RAR uncompression program."

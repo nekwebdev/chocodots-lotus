@@ -13,20 +13,23 @@
 ,btop,"is a monitor of system resources, bpytop ported to C++."
 ,rsync,"is a fast and versatile file copying tool for remote and local files."
 ,bat,"is a cat clone with syntax highlighting and git integration."
-C,https://github.com/so-fancy/diff-so-fancy.git,"is good-looking diffs with diff-highlight and more."
 ,neofetch,"is a CLI system information tool written in BASH that supports displaying images."
-,unrar,"is the RAR uncompression program."
 ,unzip,"is for extracting and viewing files in .zip archives."
-,nfs-utils,"supports programs for Network File Systems."
 ,zoxide,"is a smarter cd command for your terminal."
+,tree,"is a directory listing program displaying a depth indented list of files."
+,fzf,"is a command-line fuzzy finder."
+C,https://github.com/so-fancy/diff-so-fancy.git,"is good-looking diffs with diff-highlight and more."
+C,https://github.com/kazhala/dotbare.git,"manages your dotfiles interactively with fzf."
 #,xdg
 ,xdg-utils,"are command line tools that assist applications with a variety of desktop integration tasks."
 #,ssh
 ,keychain,"is a front-end to ssh-agent, allowing one long-running ssh-agent process per system, rather than per login."
 #,tools
 ,moreutils,"is a collection of useful unix tools."
-,perl-rename,"renames multiple files using Perl regular expressions."
 ,jq,"is a command-line JSON processor."
 #,misc
-C,https://github.com/kazhala/dotbare.git,"manages your dotfiles interactively with fzf."
 ,pacman-contrib,"are contributed scripts and tools for pacman systems."
+#,archspecific
+,nfs-common,"supports programs for Network File Systems."
+,rename,"renames multiple files using Perl regular expressions."
+,unar,"is the RAR uncompression program."
