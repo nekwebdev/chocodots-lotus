@@ -72,3 +72,9 @@ eval "$(starship init bash)"
 
 # zoxide, better cd
 eval "$(zoxide init bash)"
+
+fastfetch
+
+# load keychain and ssh agent
+# shellcheck disable=SC2046,SC2006
+[[ -f "$HOME/.ssh/arch-lotus" ]] &&  eval `keychain --dir "$XDG_CONFIG_HOME/keychain" --agents ssh --eval arch-lotus`

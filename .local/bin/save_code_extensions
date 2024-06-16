@@ -1,0 +1,7 @@
+#!/bin/sh
+
+code_bin="code"
+command -v /usr/bin/codium >/dev/null 2>/dev/null && code_bin="codium"
+
+echo "Saving $code_bin extensions..."
+$code_bin --list-extensions > "$HOME"/.config/code_extensions

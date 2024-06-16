@@ -36,14 +36,14 @@ function main() {
     echo
     _echo_step "Replacing placeholder in relevant files with $SSH_ID"; echo
     local cfg_file
-    cfg_file="$HOME/.config/shell/profile"
+    cfg_file="$HOME/.config/shell/bashrc"
     _echo_step "  (Modifying $cfg_file)"
-    [[ -f $cfg_file ]] && sed -i "s/id_ed25519/$SSH_ID/g" "$cfg_file"
+    [[ -f $cfg_file ]] && sed -i "s/--eval.*/--eval $SSH_ID\`/g" "$cfg_file"
     _echo_success
 
     cfg_file="$HOME/.gitconfig"
     _echo_step "  (Modifying $cfg_file)"
-    [[ -f $cfg_file ]] && sed -i "s/id_ed25519/$SSH_ID/g" "$cfg_file"
+    [[ -f $cfg_file ]] && sed -i "s|signingkey.*|signingkey = $HOME/\.ssh/$SSH_ID\.pub|g" "$cfg_file"
     _echo_success; echo
 
     _echo_step "$SSH_ID public key:"; echo; echo

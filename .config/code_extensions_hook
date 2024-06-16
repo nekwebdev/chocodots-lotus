@@ -1,0 +1,4 @@
+#!/bin/sh
+
+save_code_extensions
+git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles --work-tree=$HOME add $HOME/.config/code_extensions

@@ -24,7 +24,7 @@ set backupdir=~/.config/vim/backup//,.,~/tmp,~/
 set undodir=~/.config/vim/undo//,.
 
 " install plugin manager https://github.com/junegunn/vim-plug
-let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/config/vim'
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.config/vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
   silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
@@ -44,6 +44,7 @@ call plug#begin()
 " Just a shitload of color schemes.
 " https://github.com/flazz/vim-colorschemes#current-colorschemes
 Plug 'flazz/vim-colorschemes'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 " Fuzzy finder -- absolutely must have.
 Plug 'kien/ctrlp.vim'
@@ -64,10 +65,13 @@ Plug 'leshill/vim-json'
 Plug 'pangloss/vim-javascript'
 
 " vim indents HTML very poorly on it's own. This fixes a lot of that.
-Plug 'indenthtml.vim'
+Plug 'jasonwoodland/vim-html-indent'
 
 " I write markdown a lot. This is a good syntax.
 Plug 'tpope/vim-markdown'
+
+" status line.
+Plug 'vim-airline/vim-airline'
 
 " Initialize plugin system
 " - Automatically executes `filetype plugin indent on` and `syntax enable`.
@@ -80,10 +84,16 @@ call plug#end()
 filetype indent on " Filetype auto-detection
 syntax on " Syntax highlighting
 
+" apply color theme
+let g:airline_theme = 'catppuccin_mocha'
+colorscheme catppuccin_mocha
+
+set termguicolors
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
 set expandtab " use spaces instead of tabs.
+set number " show line numbers.
 set smarttab " let's tab key insert 'tab stops', and bksp deletes tabs.
 set shiftround " tab / shifting moves to closest tabstop.
 set autoindent " Match indents on new lines.
@@ -99,3 +109,7 @@ set gdefault " use the `g` flag by default.
 
 " allow the cursor to go anywhere in visual block mode.
 set virtualedit+=block
+
+" So we don't have to press shift when we want to get into command mode.
+nnoremap ; :
+vnoremap ; :

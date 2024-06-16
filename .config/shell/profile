@@ -37,8 +37,7 @@ if [ -n "$BASH_VERSION" ]; then
     fi
 fi
 
-# load keychain and ssh agent
-# shellcheck disable=SC2046,SC2006
-[[ -f "$HOME/.ssh/id_ed25519" ]] &&  eval `keychain --dir "$XDG_CONFIG_HOME/keychain" --agents ssh --eval id_ed25519`
+# load ssh agent
+ssh-agent bash
 
 # start graphical server on user's current tty if tty1 and xorg not already running.
